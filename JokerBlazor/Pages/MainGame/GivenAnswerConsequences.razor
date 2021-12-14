@@ -1,0 +1,18 @@
+﻿@page "/answers"
+@inherits Master
+
+<div class="QuestionAnswers">
+    <button id="A" onmousedown="GivenAnswerConsequence(); isRightBonus()" onkeypress="GivenAnswerConsequence(); isRightBonus()" class="AnswerA" >@OdgovorA</button>
+    
+    <button id="B" onmousedown="GivenAnswerConsequence(); isRightBonus()" onkeypress="GivenAnswerConsequence(); isRightBonus()" class="AnswerB">@OdgovorB</button>
+ 
+    <button id="C" onmousedown="GivenAnswerConsequence()" onkeypress="GivenAnswerConsequence()" class="AnswerC">@OdgovorC</button>
+   
+    <button id="D" onmousedown="GivenAnswerConsequence()" onkeypress="GivenAnswerConsequence()" class="AnswerD">@OdgovorD</button>
+  
+
+</div>
+
+@code {
+
+}

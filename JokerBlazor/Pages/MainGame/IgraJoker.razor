@@ -1,0 +1,157 @@
+﻿@inherits Master
+@using System.Media
+@inject IJSRuntime JS
+@using System.IO
+@using System.Threading
+@inject NavigationManager NavigationManager
+
+
+<a class="JokerStart" id="JokerStart">
+    <div class="Joker" id="NaslednjeVprasanje">
+        <div>
+
+        </div>
+        <div class="JokerBeseda">
+
+            <p id="Igraj" class="JokerBesedaFont" runat="client" @onclick="FunctionIgraJoker"> @startText </p>
+
+        </div>
+        <div>
+
+        </div>
+
+    </div>
+</a>
+
+@code {
+
+    public void FunctionIgraJoker()
+    {
+        //ColorActiveMoney();
+
+        int cajtSpremenljivka;
+        int counterActual; //Ko nastavljavljamo counter1-12
+
+        zacetekVprasanjaSound();
+
+        if (trenutnoVprasanje == 12)
+        {
+            classGumbOdstopi = "gumbOdstopiVisible";
+        }
+
+        startText = "NAPREJ";
+
+        if (polozajTekmovalcaDenar == 1)
+        {
+            FunctionFetchQuestion("http://surscpu/QuizAPI_BPS/api/quiz/GetQuestionByDifficultyAndType/1/1");
+        }
+
+        if (polozajTekmovalcaDenar > 1 && polozajTekmovalcaDenar < 6)
+        {
+            FunctionFetchQuestion("http://surscpu/QuizAPI_BPS/api/quiz/GetQuestionWhichIsLevel/" + polozajTekmovalcaDenar);
+        }
+
+        if (polozajTekmovalcaDenar > 5)
+        {
+            FunctionFetchQuestion("http://surscpu/QuizAPI_BPS/api/quiz/GetQuestionWhichIsLevel/6");
+        }
+
+        Thread.Sleep(3500);
+        ActualQuestionHTML = IzbranoVprasanjeSeOdgovarja[2];
+        zePostavljenaVprasanja.Add(IzbranoVprasanjeSeOdgovarja[0]);
+        pravilenOdgovor = IzbranoVprasanjeSeOdgovarja[7];
+
+        Thread.Sleep(1500);
+        OdgovorA = IzbranoVprasanjeSeOdgovarja[3];
+        answerComeSound();
+
+        Thread.Sleep(1500);
+        OdgovorB = IzbranoVprasanjeSeOdgovarja[4];
+        answerComeSound();
+
+        Thread.Sleep(1500);
+        OdgovorC = IzbranoVprasanjeSeOdgovarja[5];
+        answerComeSound();
+
+        Thread.Sleep(1500);
+        OdgovorD = IzbranoVprasanjeSeOdgovarja[6];
+        answerComeSound();
+
+
+        counterActual = (int)this.GetType().GetField("counter" + trenutnoVprasanje.ToString()).GetValue(this);
+        if (trenutnoVprasanje > 0 && trenutnoVprasanje < 5)
+        {
+            counterActual = 31;
+        }
+        else if (trenutnoVprasanje > 4 && trenutnoVprasanje < 9)
+        {
+            counterActual = 41;
+        }
+        else if (trenutnoVprasanje > 8 && trenutnoVprasanje < 13)
+        {
+            counterActual = 51;
+        }
+        cajtSpremenljivka = counterActual;
+
+
+        Task Clock = Task.Run(async () =>
+        {
+            for (; ; )
+            {
+                await Task.Delay(1000);
+                cajtSpremenljivka = cajtSpremenljivka - 1;
+
+                if (cajtSpremenljivka > -1)
+                {
+                    // SAMO V PRIMERU DA JE ČAS VEČJI OD -1 IN DA ŠE NI BIL PODAN ODGOVOR NA VPRAŠANJE
+                    casHTML = cajtSpremenljivka.ToString();
+                }
+                if (cajtSpremenljivka == 10 || cajtSpremenljivka < 6 && cajtSpremenljivka > 0)
+                {
+                    lastSecondsSound();
+                }
+                if (cajtSpremenljivka == 5)
+                {
+                    casBackgroundColor = "background-color:red";
+                }
+                if (cajtSpremenljivka == 0)
+
+                { // ČE ZMANJKA ČASA ZA ODGOVOR NE MOREŠ VEČ ODGOVORITI NA PRAVILEN ODGOVOR
+                    casBackgroundColor = "background-color:none";
+                }
+            }
+        });
+    }
+
+
+
+    // IMPRO URA - SPREMENLJIVKA ZA VSAKO OD 12 VPRAŠANJ DRUGAČNA, KER DRUGAČE PRIDE DO POSPEŠITVE URE
+
+    //                setInterval(function() { //INTERVAL ZA MERJENJE SEKUND NA VPRAŠANJU
+    //                    if (daniOdgovori.length == trenutnoVprasanje || igralecPobegnil == true)
+    //                    { // ČE JE TEKMOVALEC ŽE ODGOVORIL NA TEKOČE VPRAŠANJE
+
+    //                        cas.style.removeProperty("background-color");
+    //                        MakeChoicesInvisible();
+    //                        cajtSpremenljivka = -1000;
+    //                    }
+
+    //                    if (dodano15Sekund == true && dodajSamoEnkrat15Sekund == 0)
+    //                    {
+    //                        cajtSpremenljivka = cajtSpremenljivka + 15;
+    //                        cas.style.removeProperty("background-color");
+    //                    }
+
+    //                    if (cajtSpremenljivka == 0)
+    //                        document.getElementById(IzbranoVprasanjeSeOdgovarja[7]).disabled = true;
+
+    //                        if (trenutnoVprasanje == daniOdgovori.length)
+    //                        {
+    //                            document.getElementById(IzbranoVprasanjeSeOdgovarja[7]).disabled = false;
+    //                        }
+    //                    }
+    //                }, 1000);
+    //                // IMPRO URA
+    //            }, 8000);
+    //    }
+    }

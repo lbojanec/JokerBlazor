@@ -1,0 +1,121 @@
+﻿@using System.Media
+@using System.Net;
+@using System.IO;
+@using Newtonsoft.Json;
+@using System.Text.Json.Serialization;
+@using JokerBlazor.Models
+
+<h3>Master</h3>
+
+@code {
+    protected string casBackgroundColor;
+    protected string casHTML;
+    protected bool weInBonusJoker = false;
+
+    protected List<string> zePostavljenaVprasanja = new List<string>();
+    protected List<string> IzbranoVprasanjeSeOdgovarja = new List<string>();
+
+    protected string startText = "IGRAJ";
+    protected ElementReference refGumbOdstopi;
+
+
+    protected bool igralecPobegnil = false;
+    protected List<string> daniOdgovori = new List<string>();
+    protected bool dodano15Sekund = false;
+
+    protected static int trenutnoVprasanje = 1;
+    protected int polozajTekmovalcaDenar = 1;
+
+    protected int counter1; protected int counter2; protected int counter3; protected int counter4;
+    protected int counter5; protected int counter6; protected int counter7; protected int counter8;
+    protected int counter9; protected int counter10; protected int counter11; protected int counter12; //ŠTEVEC
+
+    protected void zacetekVprasanjaSound()
+    {
+        SoundPlayer zacetekVprasanjaSound = new SoundPlayer(@"C:\Users\bojanec\source\repos\JokerBlazor\JokerBlazor\wwwroot\Content\audio\zacetekVprasanjaSound.wav");
+        zacetekVprasanjaSound.Play();
+    }
+
+    protected void answerComeSound()
+    {
+        SoundPlayer answerComeSound = new SoundPlayer(@"C:\Users\bojanec\source\repos\JokerBlazor\JokerBlazor\wwwroot\Content\audio\answerComeSound.wav");
+        answerComeSound.Play();
+    }
+
+    protected void lastSecondsSound()
+    {
+        SoundPlayer lastSecondsSound = new SoundPlayer(@"C:\Users\bojanec\source\repos\JokerBlazor\JokerBlazor\wwwroot\Content\audio\lastSecondsSound.wav");
+        lastSecondsSound.Play();
+    }
+    protected static string nastavi = "gumbOdstopi";
+    protected string classGumbOdstopi = nastavi;
+    protected static string ActualQuestionHTML { get; set; }
+    protected static string OdgovorA { get; set; }
+    protected static string OdgovorB { get; set; }
+    protected static string OdgovorC { get; set; }
+    protected static string OdgovorD { get; set; }
+
+    protected void FunctionFetchQuestion(string apiKlic)
+    {
+
+        HttpWebRequest requestQuestion = (HttpWebRequest)WebRequest.Create(String.Format(apiKlic));
+        requestQuestion.Method = "GET";
+        HttpWebResponse response = (HttpWebResponse)requestQuestion.GetResponse();
+        string jsonString;
+
+        using (Stream stream = response.GetResponseStream())
+        {
+            StreamReader reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+            jsonString = reader.ReadToEnd();
+        }
+
+        Question questionChoosen = JsonConvert.DeserializeObject<Question>(jsonString);
+
+        HttpWebRequest requestQuestionAnswers = (HttpWebRequest)WebRequest.Create(String.Format("http://surscpu/QuizAPI_BPS/api/quiz/GetQuestionAnswers/" + questionChoosen.c_IdQuestion));
+        requestQuestionAnswers.Method = "GET";
+        HttpWebResponse responseAnswers = (HttpWebResponse)requestQuestionAnswers.GetResponse();
+        string jsonStringAnswers;
+
+        using (Stream streamAnswers = responseAnswers.GetResponseStream())
+        {
+            StreamReader readerAnswers = new StreamReader(streamAnswers, System.Text.Encoding.UTF8);
+            jsonStringAnswers = readerAnswers.ReadToEnd();
+        }
+        List<Answer> questionAnswers = JsonConvert.DeserializeObject<List<Answer>>(jsonStringAnswers);
+
+        IzbranoVprasanjeSeOdgovarja.Add(questionChoosen.c_IdQuestion);
+        IzbranoVprasanjeSeOdgovarja.Add(questionChoosen.c_IdDifficulty);
+        IzbranoVprasanjeSeOdgovarja.Add(questionChoosen.c_QuestionText);
+
+        for (int i = 0; i < questionAnswers.Count; i = i + 1)
+        {
+            IzbranoVprasanjeSeOdgovarja.Add(questionAnswers[i].c_AnswerText);
+        }
+
+        for (int i = 0; i < questionAnswers.Count; i = i + 1)
+        {
+            if (questionAnswers[i].c_IsCorrect == true)
+            {
+                if (i == 0)
+                {
+                    IzbranoVprasanjeSeOdgovarja.Add("A");
+                }
+                if (i == 1)
+                {
+                    IzbranoVprasanjeSeOdgovarja.Add("B");
+                }
+                if (i == 2)
+                {
+                    IzbranoVprasanjeSeOdgovarja.Add("C");
+                }
+                if (i == 3)
+                {
+                    IzbranoVprasanjeSeOdgovarja.Add("D");
+                }
+            }
+        }
+    }
+    protected string pravilenOdgovor;
+
+
+}
